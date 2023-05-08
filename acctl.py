@@ -6,6 +6,7 @@ import hashlib
 
 sys.path.append(os.path.dirname(__file__))
 import acmod
+import acpriv
 
 auth_file=os.path.dirname(__file__) + "/auth.txt";
 response_content_type="application/json;charset=utf-8";
@@ -127,12 +128,6 @@ def do_set_temp(app_res, in_args):
 
 def application(app_env, app_res):
    try:
-      try:
-         with open(auth_file, 'r') as af:
-            auth_hash = af.read().rstrip()
-      except EnvironmentError:
-         raise Exception("auth file missing")
-         
       # parse GET or POST parameters
       if (app_env['REQUEST_METHOD'].upper() == 'GET'):
          in_args = parse_qs(app_env['QUERY_STRING'])
@@ -150,7 +145,7 @@ def application(app_env, app_res):
       except Exception as e:
          raise Exception("auth")
 
-      if (hashlib.md5(auth_in.encode('utf-8')).hexdigest() != auth_hash):
+      if (hashlib.md5(auth_in.encode('utf-8')).hexdigest() != acpriv.auth_hash):
          raise Exception("auth")
 
       # get operator "op", default to nonexistent value

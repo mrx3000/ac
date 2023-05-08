@@ -140,7 +140,6 @@ if b_sync:
 if b_auto_mode == "cool":
    #if (b_on and b_mode == "cool" and cur_temp <= off_temp) or ((not b_on) and last_evt_reason == "trigger" and last_evt_sec <= 120):
    if ((not b_on) and last_evt_reason == "trigger" and last_evt_sec <= 120):
-      t_params = { "apiKey": acmod.ss_key }
       print("Fan is off - will turn on")
       try:
          acmod.ac_set_state(True, "fan", tgt_temp_cool, "low")
