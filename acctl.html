@@ -1,0 +1,45 @@
+<html>
+
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" />
+<script language="javascript" src="acctl.js"></script>
+<link rel="stylesheet" type="text/css" href="acctl.css" ></link>
+</head>
+
+<body id="body" ontouchstart="" onload="init_page();" >
+
+<div class="frame" id="frame">
+   <div class="temp_cur_text" id="temp_cur_text">&nbsp;00.0&deg;</div>
+   <div class="temp_buttons_column">
+      <div class="arrow_up" onclick="click_up();"></div>
+      <div class="temp_set_text" id="temp_set_text">22.1&deg;-23.1&deg;</div>
+      <div class="arrow_down" onclick="click_down();"></div>
+   </div>
+
+   <br /><br />
+
+   <div class="switch_container">
+      <div class="switch-field">
+         &nbsp;
+         <input type="radio" id="radio-heat" name="switch-mode" value="heat" onclick="switch_mode(this);" />
+         <label for="radio-heat">HEAT</label>
+         <input type="radio" id="radio-cool" name="switch-mode" value="cool" onclick="switch_mode(this);" />
+         <label for="radio-cool">COOL</label>
+         <input type="radio" id="radio-off" name="switch-mode" value="off" onclick="switch_mode(this);" />
+         <label for="radio-off">&nbsp;OFF&nbsp;</label>
+         &nbsp;
+      </div>
+   </div>
+
+</div>
+
+<div id="auth_dialog" class="modal" >
+  <div class="modal-content">
+   <p> Auth: <input type="text" id="auth_value" name="auth_in">
+   &nbsp;
+   <input type="button" name="close_modal" value="OK" onclick="close_modal();" /></p>
+  </div>
+</div>
+
+</body>
+</html>
