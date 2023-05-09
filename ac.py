@@ -99,12 +99,12 @@ for loop in range(2):
       mode_temp = tgt_temp_cool
       if not b_on:
          temp_diff = off_temp - cur_temp
-         if last_evt_sec > 300 and temp_diff > 0.2:
+         if last_evt_sec > 300 and temp_diff > 0.5:
             b_sync = True
       else:
-         # linearly adjust thold from on_temp + 0.1 immediately (delayed by 500 sec)
+         # linearly adjust thold from on_temp + 0.5 immediately (delayed by 500 sec)
          # to off temp itself at 1hr
-         temp_thold = off_temp + (on_temp + 0.1 - off_temp) * ((3600 - last_evt_sec) / 3300)
+         temp_thold = off_temp + (on_temp + 0.5 - off_temp) * ((3600 - last_evt_sec) / 3300)
          print("Temp thold: " + str(temp_thold))
          if last_evt_sec > 500 and cur_temp >= temp_thold:
             b_sync = True
