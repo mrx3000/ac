@@ -116,8 +116,8 @@ def do_set_temp(app_res, in_args):
    except Exception as e:
       raise Exception("Required temp parameter is missing")
 
-   # Clamp temp range to 19-24 and make sure lo_temp and hi_temp more than 0.1 degree apart (i.e. 0.2)
-   if (lo_temp < 19 or lo_temp > 24 or hi_temp < 19 or hi_temp > 24 or lo_temp + 0.1 >= hi_temp):
+   # Clamp temp range to 19-26 and make sure lo_temp and hi_temp more than 0.1 degree apart (i.e. 0.2)
+   if (lo_temp < 19 or lo_temp > 26 or hi_temp < 19 or hi_temp > 26 or lo_temp + 0.1 >= hi_temp):
       raise Exception("Invalid temperature values specified")
    ret_arr = getvals()
    if (ret_arr['auto_mode'].lower() == "off"):
