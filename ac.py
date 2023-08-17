@@ -55,6 +55,7 @@ for loop in range(2):
 
    b_auto_mode = ""
    b_sync = False
+   b_force = False
 
    b_mode = ss_data['result']['acState']['mode']
 
@@ -98,18 +99,30 @@ for loop in range(2):
    elif b_auto_mode == "cool":
       mode_temp = tgt_temp_cool
       if not b_on:
-         temp_diff = off_temp - cur_temp
-         if last_evt_sec > 300 and temp_diff > 0.5:
+         # Current temperature well below off (low) limit
+         # Assume runaway cooling mode
+         if (off_temp - cur_temp) > 0.5:
             b_sync = True
+   
+         # AC off, above on (upper) limit
+         # Assume failed smart mode start
+         if (cur_temp - on_temp > 0.1):
+            b_force = True
       else:
          # linearly adjust thold from on_temp + 0.5 immediately (delayed by 500 sec)
          # to off temp itself at 1hr
+         # If current temperature is above thold, assume "underrun" (not actually cooling)
          temp_thold = off_temp + (on_temp + 0.5 - off_temp) * ((3600 - last_evt_sec) / 3300)
          print("Temp thold: " + str(temp_thold))
          if last_evt_sec > 500 and cur_temp >= temp_thold:
             b_sync = True
 
-   if not b_sync:
+         # AC on, below off (lower) limit
+         # Assume failed smart mode stop
+         if (off_temp - cur_temp) > 0.2:
+            b_force = True
+
+   if not (b_sync or b_force):
       print("Run state OK")
       break
 
@@ -130,7 +143,22 @@ if b_sync:
       print("Command on/off failed: " + str(e))
       sys.exit(-1)
 
-   print ("Flipped state and applied on: " + str(b_on))
+   print ("Flipped state and applied state: " + str(b_on))
+   sys.exit(2)
+
+if b_force:
+   print("Need to force, current on: " + str(b_on) + ", auto mode: " + str(b_auto_mode))
+
+   # apply opposite state
+   b_on = not b_on;
+
+   try:
+      acmod.ac_set_state(b_on, b_auto_mode, mode_temp, "auto")
+   except RuntimeError as e:
+      print("Command on/off failed: " + str(e))
+      sys.exit(-1)
+
+   print ("Force applied state: " + str(b_on))
    sys.exit(2)
 
 # In cooling mode run fan periodically
