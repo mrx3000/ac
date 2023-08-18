@@ -9,6 +9,8 @@ from datetime import datetime
 import requests
 import acpriv
 
+tgt_temp_cool=20
+tgt_temp_heat=26
 
 def ac_get_data():
    req_params = { "apiKey": acpriv.ss_key, "fields": "measurements,smartMode,acState,lastACStateChange" }
@@ -51,12 +53,12 @@ def ac_set_smartmode(b_on, s_mode, i_lo_temp, i_hi_temp):
                    "lowTemperatureThreshold": i_lo_temp,
                    "lowTemperatureState": { "on": False },
                    "highTemperatureThreshold": i_hi_temp,
-                   "highTemperatureState": { "on": True, "mode": "cool", "fanLevel": "auto", "targetTemperature": 20 }
+                   "highTemperatureState": { "on": True, "mode": "cool", "fanLevel": "auto", "targetTemperature": tgt_temp_cool }
                  }
    elif (s_mode == "heat"):
       req_data = { "enabled": b_on,
                    "lowTemperatureThreshold": i_lo_temp,
-                   "lowTemperatureState": { "on": True, "mode": "heat", "fanLevel": "auto", "targetTemperature": 26 },
+                   "lowTemperatureState": { "on": True, "mode": "heat", "fanLevel": "auto", "targetTemperature": tgt_temp_heat },
                    "highTemperatureThreshold": i_hi_temp,
                    "highTemperatureState": { "on": False }
                  }

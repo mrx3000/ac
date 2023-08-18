@@ -11,7 +11,7 @@ import requests
 import acmod
 
 tgt_temp_heat=26
-tgt_temp_cool=19
+tgt_temp_cool=20
 
 now = datetime.now()
 now_str = now.strftime("%Y-%m-%dT%H:%M:%SZ")
@@ -21,6 +21,7 @@ now_str = now.strftime("%Y-%m-%dT%H:%M:%SZ")
 # Both iteratons must result in b_sync == True to update state
 #
 b_sync = False
+b_force = False
 
 b_auto_mode = ""
 b_mode = ""
@@ -80,7 +81,7 @@ for loop in range(2):
    if last_evt_sec < 300:
       print("Last state chg too recent")
       break
-   elif last_evt_sec > 3600:
+   elif last_evt_sec > 7000:
       print("Last state chg too old")
       break
    #elif last_evt_reason != "trigger":
@@ -101,7 +102,7 @@ for loop in range(2):
       if not b_on:
          # Current temperature well below off (low) limit
          # Assume runaway cooling mode
-         if (off_temp - cur_temp) > 0.5:
+         if (off_temp - cur_temp) > 0.3:
             b_sync = True
    
          # AC off, above on (upper) limit

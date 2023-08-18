@@ -11,6 +11,9 @@ import acpriv
 auth_file=os.path.dirname(__file__) + "/auth.txt";
 response_content_type="application/json;charset=utf-8";
 
+tgt_temp_cool=20
+tgt_temp_heat=26
+
 # Return simple dictionary of current AC state values
 def getvals():
    ss_data = acmod.ac_get_data()
@@ -72,7 +75,7 @@ def do_set_heat(app_res, in_args):
    if (ret_arr['auto_mode'].lower() != "heat"):
       # if not in heat mode (cool or off) - turn off if running
       if (ret_arr['run']):
-         ac_set_state(False, "heat", 26, "auto")
+         ac_set_state(False, "heat", tgt_temp_heat, "auto")
    acmod.ac_set_smartmode(b_on, "heat", ret_arr['lo_temp'], ret_arr['hi_temp'])
    return do_send_ok(app_res)   
 
@@ -87,7 +90,7 @@ def do_set_cool(app_res, in_args):
    if (ret_arr['auto_mode'].lower() != "cool"):
       # if not in cool mode (heat or off) - turn off if running
       if (ret_arr['run']):
-         ac_set_state(False, "cool", 20, "auto")
+         ac_set_state(False, "cool", tgt_temp_cool, "auto")
    acmod.ac_set_smartmode(b_on, "cool", ret_arr['lo_temp'], ret_arr['hi_temp'])
    return do_send_ok(app_res)   
 
