@@ -1,5 +1,5 @@
 #!/bin/sh
-AC_BIN=/home/gene/ac/ac.py
+AC_BIN=/home/gene/ac/acsw.py
 AC_LOG=/home/gene/ac/ac.log
 AC_TMP=/tmp/ac.$$
 

@@ -1,5 +1,3 @@
-#!/usr/bin/python3
-
 import sys
 from urllib.request import urlopen
 import json
@@ -7,6 +5,9 @@ import time
 from calendar import timegm
 from datetime import datetime
 import requests
+import logging
+from tuya_connector import TuyaOpenAPI, TUYA_LOGGER
+
 import acpriv
 
 tgt_temp_cool=20
@@ -77,4 +78,23 @@ def ac_ctl_smartmode(b_on):
    ret_arr = json.loads(ret_js.text)
    if ret_arr['status'] != "success":
       raise RuntimeError("return is not success")
+
+
+def ac_get_switch_state():
+   TUYA_LOGGER.setLevel(logging.ERROR)
+   tapi = TuyaOpenAPI(acpriv.tuya_url, acpriv.tuya_id, acpriv.tuya_key)
+   tapi.connect()
+
+   res = tapi.get("/v1.0/iot-03/devices/{}/status".format(acpriv.tuya_device_id))
+   want_codes = { 'cur_current': 'current' }
+   map_res = dict(map(lambda e: ( want_codes[e['code']], e['value'] ), 
+               filter(lambda v: v['code'] in want_codes.keys(), res['result'])))
+
+   vcur = map_res['current'];
+   if (vcur > 2000):
+      return "on"
+   elif (vcur > 300):
+      return "fan"
+   else:
+      return "off"
 
