@@ -47,19 +47,23 @@ def ac_patch_state(b_on):
    if ret_arr['status'] != "success":
       raise RuntimeError("return is not success")
 
-def ac_set_smartmode(b_on, s_mode, i_lo_temp, i_hi_temp):
+def ac_set_smartmode(b_on, s_mode, i_lo_temp, i_hi_temp, i_tgt_temp = 0):
    req_params = { "apiKey": acpriv.ss_key }
    if (s_mode == "cool"):
+      if (i_tgt_temp == 0):
+         i_tgt_temp = tgt_temp_cool
       req_data = { "enabled": b_on,
                    "lowTemperatureThreshold": i_lo_temp,
                    "lowTemperatureState": { "on": False },
                    "highTemperatureThreshold": i_hi_temp,
-                   "highTemperatureState": { "on": True, "mode": "cool", "fanLevel": "auto", "targetTemperature": tgt_temp_cool }
+                   "highTemperatureState": { "on": True, "mode": "cool", "fanLevel": "auto", "targetTemperature": i_tgt_temp }
                  }
    elif (s_mode == "heat"):
+      if (i_tgt_temp == 0):
+         i_tgt_temp = tgt_temp_heat
       req_data = { "enabled": b_on,
                    "lowTemperatureThreshold": i_lo_temp,
-                   "lowTemperatureState": { "on": True, "mode": "heat", "fanLevel": "auto", "targetTemperature": tgt_temp_heat },
+                   "lowTemperatureState": { "on": True, "mode": "heat", "fanLevel": "auto", "targetTemperature": i_tgt_temp },
                    "highTemperatureThreshold": i_hi_temp,
                    "highTemperatureState": { "on": False }
                  }

@@ -173,12 +173,13 @@ for _x in range(1):
 # results in autorun shortly canceling the fan (and then fan restarting
 # on the "soon after cooling" condition
 if b_auto_mode == "cool":
+   fan_min = 1
    #if (b_on and b_mode == "cool" and cur_temp <= off_temp) or ((not b_on) and last_evt_reason == "trigger" and last_evt_sec <= 120):
    if ((not b_on) and last_evt_reason == "trigger" and last_evt_sec <= 120):
-      print("Fan is off - will turn on")
+      print("+ Fan on for {} min".format(fan_min))
       try:
-         acmod.ac_set_state(True, "fan", acmod.tgt_temp_cool, "low")
-         acmod.ac_set_state_after(False, "fan", acmod.tgt_temp_cool, "low", 1)
+         acmod.ac_set_state(True, "fan", temp_tgt, "low")
+         acmod.ac_set_state_after(False, "fan", temp_tgt, "low", fan_min)
       except RuntimeError as e:
-         print("Fan on failed: " + str(e))
+         print("! Fan on failed: " + str(e))
          sys.exit(-1)

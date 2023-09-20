@@ -21,14 +21,24 @@ def getvals():
    res['run_mode'] = ss_data['result']['acState']['mode']
    res['auto_enabled'] = ss_data['result']['smartMode']['enabled']
    res['temp'] = ss_data['result']['measurements']['temperature']
+
+   # set to defaults
+   res['tgt_temp_heat'] = acmod.tgt_temp_heat
+   res['tgt_temp_cool'] = acmod.tgt_temp_cool
+   res['tgt_temp_any'] = 22
+
    if ss_data['result']['smartMode']['lowTemperatureState']['on']:
       res['auto_mode'] = "heat"
       res['lo_temp'] = ss_data['result']['smartMode']['lowTemperatureThreshold']
       res['hi_temp'] = ss_data['result']['smartMode']['highTemperatureThreshold']
+      res['tgt_temp_heat'] = ss_data['result']['smartMode']['lowTemperatureState']['targetTemperature']
+      res['tgt_temp_any'] = res['tgt_temp_heat']
    elif ss_data['result']['smartMode']['highTemperatureState']['on']:
       res['auto_mode'] = "cool"
       res['lo_temp'] = ss_data['result']['smartMode']['lowTemperatureThreshold']
       res['hi_temp'] = ss_data['result']['smartMode']['highTemperatureThreshold']
+      res['tgt_temp_cool'] = ss_data['result']['smartMode']['highTemperatureState']['targetTemperature']
+      res['tgt_temp_any'] = res['tgt_temp_cool']
    else:
       res['auto_mode'] = "off"
       try:
@@ -72,8 +82,8 @@ def do_set_heat(app_res, in_args):
    if (ret_arr['auto_mode'].lower() != "heat"):
       # if not in heat mode (cool or off) - turn off if running
       if (ret_arr['run']):
-         ac_set_state(False, "heat", acmod.tgt_temp_heat, "auto")
-   acmod.ac_set_smartmode(b_on, "heat", ret_arr['lo_temp'], ret_arr['hi_temp'])
+         ac_set_state(False, "heat", ret_arr['tgt_temp_heat'], "auto")
+   acmod.ac_set_smartmode(b_on, "heat", ret_arr['lo_temp'], ret_arr['hi_temp'], ret_arr['tgt_temp_heat'])
    return do_send_ok(app_res)   
 
 
@@ -85,10 +95,9 @@ def do_set_cool(app_res, in_args):
       b_on = ret_arr['auto_enabled']
 
    if (ret_arr['auto_mode'].lower() != "cool"):
-      # if not in cool mode (heat or off) - turn off if running
       if (ret_arr['run']):
-         ac_set_state(False, "cool", acmod.tgt_temp_cool, "auto")
-   acmod.ac_set_smartmode(b_on, "cool", ret_arr['lo_temp'], ret_arr['hi_temp'])
+         ac_set_state(False, "cool", ret_arr['tgt_temp_cool'], "auto")
+   acmod.ac_set_smartmode(b_on, "cool", ret_arr['lo_temp'], ret_arr['hi_temp'], ret_arr['tgt_temp_cool'])
    return do_send_ok(app_res)   
 
 
@@ -97,15 +106,15 @@ def do_set_on(app_res):
    if (not ret_arr['auto_enabled']):
       if (ret_arr['auto_mode'].lower() == "off"):
          raise Exception("Cannot enable auto mode when selection is off")
-      acmod.ac_set_smartmode(True, ret_arr['auto_mode'], ret_arr['lo_temp'], ret_arr['hi_temp'])
+      acmod.ac_set_smartmode(True, ret_arr['auto_mode'], ret_arr['lo_temp'], ret_arr['hi_temp'], ret_arr['tgt_temp_any'])
 
 
 def do_set_off(app_res):
    ret_arr = getvals()
    if (ret_arr['run']):
-      ac_set_state(False, ret_arr['run_mode'], 22, "auto")
+      ac_set_state(False, ret_arr['run_mode'], ret_arr['tgt_temp_any'], "auto")
    if (ret_arr['auto_mode'].lower() != "off"):
-      acmod.ac_set_smartmode(False, ret_arr['auto_mode'], ret_arr['lo_temp'], ret_arr['hi_temp'])
+      acmod.ac_set_smartmode(False, ret_arr['auto_mode'], ret_arr['lo_temp'], ret_arr['hi_temp'], ret_arr['tgt_temp_any'])
    return do_send_ok(app_res)   
 
 
@@ -122,7 +131,7 @@ def do_set_temp(app_res, in_args):
    ret_arr = getvals()
    if (ret_arr['auto_mode'].lower() == "off"):
       raise Exception("Auto mode is off - unable to set temperature")
-   acmod.ac_set_smartmode(ret_arr['auto_enabled'], ret_arr["auto_mode"], lo_temp, hi_temp)
+   acmod.ac_set_smartmode(ret_arr['auto_enabled'], ret_arr["auto_mode"], lo_temp, hi_temp, ret_arr['tgt_temp_any'])
    return do_send_ok(app_res)   
 
 
