@@ -11,6 +11,8 @@ import pickle
 
 import acmod
 
+BN = { True: "on", False: "off" }
+
 TS_FILE_PATH = "/tmp/acts.dat"
 
 now = datetime.now()
@@ -19,7 +21,7 @@ now_str = now.strftime("%Y-%m-%dT%H:%M:%SZ")
 b_sync = False
 b_force = False
 
-b_auto_mode = ""
+s_auto_mode = ""
 b_mode = ""
 b_sw_mode = ""
 
@@ -45,9 +47,9 @@ last_evt_sec = ss_data['result']['lastACStateChange']['time']['secondsAgo']
 last_evt_reason = ss_data['result']['lastACStateChange']['reason'].lower()
 b_mode = ss_data['result']['acState']['mode']
 
-print("On: {}, temp: {}".format(b_on, temp_cur))
+print("Run state: {}, temp: {}".format(BN[b_on], temp_cur))
 
-b_auto_mode = ""
+s_auto_mode = ""
 b_vsync = False      # verify with Tuya, possibly sync
 b_sync = False       # Tuya confirmed, sync
 b_force = False      # Non-verified, force on/off
@@ -55,23 +57,23 @@ b_force = False      # Non-verified, force on/off
 temp_low = ss_data['result']['smartMode']['lowTemperatureThreshold']
 temp_hi = ss_data['result']['smartMode']['highTemperatureThreshold']
 if ss_data['result']['smartMode']['lowTemperatureState']['on']:
-   b_auto_mode = "heat"
+   s_auto_mode = "heat"
    temp_tgt = ss_data['result']['smartMode']['lowTemperatureState']['targetTemperature']
 elif ss_data['result']['smartMode']['highTemperatureState']['on']:
-   b_auto_mode = "cool"
+   s_auto_mode = "cool"
    temp_tgt = ss_data['result']['smartMode']['highTemperatureState']['targetTemperature']
 else:
    print("! Smart mode is undefined")
    sys.exit(-1)
 
-print("Mode: {}, range: {} - {}, last evt: {} sec agp".format(b_auto_mode, temp_low, temp_hi, last_evt_sec))
+print("Mode: {}, range: {} - {}, last evt: {} sec ago".format(s_auto_mode, temp_low, temp_hi, last_evt_sec))
 
 # synchronization scope
 for _x in range(1):
    if last_evt_sec < 300:
       print("- Last state chg too recent")
       break
-   elif last_evt_sec > 7000:
+   elif last_evt_sec > 36000:
       print("- Last state chg too old")
       break
 
@@ -84,10 +86,10 @@ for _x in range(1):
    # Offsets and range checked above, so here we
    # can simply compare with hi/lo threshold
    b_want_on = False
-   if b_auto_mode == "heat":
+   if s_auto_mode == "heat":
       if temp_cur < temp_low:
          b_want_on = True
-   elif b_auto_mode == "cool":
+   elif s_auto_mode == "cool":
       if temp_cur > temp_hi:
          b_want_on = True
 
@@ -139,7 +141,7 @@ for _x in range(1):
 
    # Switch reported state out of sync with Sensibo
    if (b_on and sw_state != "on") or (not b_on and sw_state != "off"):
-      print("+ Sync, run state reported on: {}, sw reported: {}, auto mode: {}, sync to {}".format(b_on, sw_state, b_auto_mode, not b_on))
+      print("+ Sync, run state reported: {}, sw reported: {}, auto mode: {}, sync to state {}".format(BN[b_on], sw_state, s_auto_mode, BN[not b_on]))
 
       # Patch current run state to the opposite
       try:
@@ -154,9 +156,9 @@ for _x in range(1):
    # If desired run state is not the same as current (possibly just patched)
    # force the desired run state
    if (b_want_on != b_on):
-      print("+ Force, run state on: {}, run state wanted: {}, auto mode: {}, force to {}".format(b_on, b_want_on, b_auto_mode, b_want_on))
+      print("+ Force, run state: {}, run state wanted: {}, auto mode: {}, force to state {}".format(BN[b_on], BN[b_want_on], s_auto_mode, BN[b_want_on]))
       try:
-         acmod.ac_set_state(b_want_on, b_auto_mode, temp_tgt, "auto")
+         acmod.ac_set_state(b_want_on, s_auto_mode, temp_tgt, "auto")
       except RuntimeError as e:
          print("! Command on/off failed: " + str(e))
          sys.exit(-1)
@@ -172,7 +174,7 @@ for _x in range(1):
 # Attempting to proactively switch to the fan from autorun cool
 # results in autorun shortly canceling the fan (and then fan restarting
 # on the "soon after cooling" condition
-if b_auto_mode == "cool":
+if s_auto_mode == "cool":
    fan_min = 1
    #if (b_on and b_mode == "cool" and cur_temp <= off_temp) or ((not b_on) and last_evt_reason == "trigger" and last_evt_sec <= 120):
    if ((not b_on) and last_evt_reason == "trigger" and last_evt_sec <= 120):
