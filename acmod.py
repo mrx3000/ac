@@ -14,7 +14,7 @@ tgt_temp_cool=20
 tgt_temp_heat=26
 
 def ac_get_data():
-   req_params = { "apiKey": acpriv.ss_key, "fields": "measurements,smartMode,acState,lastACStateChange" }
+   req_params = { "apiKey": acpriv.ss_key, "fields": "measurements,smartMode,acState,lastStateChange" }
    ret_js = requests.get(acpriv.ss_url_v2_base, params=req_params)
    ret_arr = json.loads(ret_js.text)
    if ret_arr['status'] != "success":

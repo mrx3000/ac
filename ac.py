@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 import sys
 from urllib.request import urlopen
@@ -42,14 +42,14 @@ for loop in range(2):
       print("Not in auto mode")
       break
 
-   if ('lastACStateChange' not in ss_data['result']):
+   if ('lastStateChange' not in ss_data['result']):
       print("Last state change too old - no change key")
       break
 
    b_on = ss_data['result']['acState']['on']
    cur_temp = ss_data['result']['measurements']['temperature']
-   last_evt_sec = ss_data['result']['lastACStateChange']['time']['secondsAgo']
-   last_evt_reason = ss_data['result']['lastACStateChange']['reason'].lower()
+   last_evt_sec = ss_data['result']['lastStateChange']['secondsAgo']
+   #last_evt_reason = ss_data['result']['lastACStateChange']['reason'].lower()
 
    print("On: " + str(b_on))
    print("Temp Now: " + str(cur_temp))
@@ -168,7 +168,9 @@ if b_force:
 # on the "soon after cooling" condition
 if b_auto_mode == "cool":
    #if (b_on and b_mode == "cool" and cur_temp <= off_temp) or ((not b_on) and last_evt_reason == "trigger" and last_evt_sec <= 120):
-   if ((not b_on) and last_evt_reason == "trigger" and last_evt_sec <= 120):
+   #if ((not b_on) and last_evt_reason == "trigger" and last_evt_sec <= 120):
+   # XXX XXX need to figure out how to run once!!!
+   if ((not b_on) and last_evt_sec <= 120):
       print("Fan is off - will turn on")
       try:
          acmod.ac_set_state(True, "fan", tgt_temp_cool, "low")
