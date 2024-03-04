@@ -14,11 +14,20 @@ tgt_temp_cool=20
 tgt_temp_heat=26
 
 def ac_get_data():
+   # get main result array
    req_params = { "apiKey": acpriv.ss_key, "fields": "measurements,smartMode,acState,lastStateChange" }
    ret_js = requests.get(acpriv.ss_url_v2_base, params=req_params)
    ret_arr = json.loads(ret_js.text)
    if ret_arr['status'] != "success":
       raise RuntimeError("return is not success")
+   req_params = { "apiKey": acpriv.ss_key }
+   # get ac state change 0, insert into result array
+   ret_js = requests.get(acpriv.ss_url_v2_base + "/acStates", params=req_params)
+   ret_arr2 = json.loads(ret_js.text)
+   if ret_arr2['status'] != "success":
+      raise RuntimeError("return is not success")
+   # patch last state change 0 into the main result array
+   ret_arr['result']['lastACStateChange'] = ret_arr2['result'][0];
    return ret_arr
 
 # Set AC run state and mode

@@ -36,15 +36,15 @@ if (not ss_data['result']['smartMode']['enabled']):
    print("- Not in auto mode")
    sys.exit(0)
 
-if ('lastStateChange' not in ss_data['result']):
+if ('lastACStateChange' not in ss_data['result']):
    print("- Last state change too old - no change key")
    sys.exit(0)
 
 # Sensibo reported values
 b_on = ss_data['result']['acState']['on']
 temp_cur = ss_data['result']['measurements']['temperature']
-last_evt_sec = ss_data['result']['lastStateChange']['secondsAgo']
-#last_evt_reason = ss_data['result']['lastACStateChange']['reason'].lower()
+last_evt_sec = ss_data['result']['lastACStateChange']['time']['secondsAgo']
+last_evt_reason = ss_data['result']['lastACStateChange']['reason'].lower()
 b_mode = ss_data['result']['acState']['mode']
 
 print("Run state: {}, temp: {}".format(BN[b_on], temp_cur))
@@ -177,9 +177,7 @@ for _x in range(1):
 if s_auto_mode == "cool":
    fan_min = 1
    #if (b_on and b_mode == "cool" and cur_temp <= off_temp) or ((not b_on) and last_evt_reason == "trigger" and last_evt_sec <= 120):
-   #if ((not b_on) and last_evt_reason == "trigger" and last_evt_sec <= 120):
-   # XXX XXX XXX Problem!
-   if ((not b_on) and last_evt_sec <= 120):
+   if ((not b_on) and last_evt_reason == "trigger" and last_evt_sec <= 120):
       print("+ Fan on for {} min".format(fan_min))
       try:
          acmod.ac_set_state(True, "fan", temp_tgt, "low")
