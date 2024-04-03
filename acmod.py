@@ -10,7 +10,7 @@ from tuya_connector import TuyaOpenAPI, TUYA_LOGGER
 
 import acpriv
 
-tgt_temp_cool=20
+tgt_temp_cool=19
 tgt_temp_heat=26
 
 def ac_get_data():
